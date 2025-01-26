@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>ESCANER EANs</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+</head>
+    <body>
+        <h1>Escáner de Códigos EAN</h1>
+        <br>
+        <div id="lector" style="width: 250px"></div>
+        <br>
+        <button onclick="downloadExcel()">Descargar Excel</button>
+        <br>
+        <button type="button" id ="botonSS" onclick="botonStopStart()">Stop Scan</button>
+        <br>
+        <p id="contador">Escaneados: 0</p>
+        <br>
+        <p id="list">Test</p>
+    
+        <script>
+            
+            function pintarEans(){
+                let contenidoArray = "";
+                scannedCodes.forEach(function(elemento){
+                    contenidoArray += "<p>" + elemento + "<p>";
+                });
+                document.getElementById("list").innerHTML = contenidoArray;
+            
+            }
+
+            const scannedCodes = [];
+            var contador = 0
+
+            const html5QrCode = new Html5Qrcode("lector", {formatsToSupport: [ 
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.UPC_A,
+                Html5QrcodeSupportedFormats.UPC_E,
+                Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION,
+            ] });
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: 250
+                },
+                onScanSuccess,
+                onScanFailure
+            );
+
+            function onScanSuccess(decodedText, decodedResult) {
+                if (!scannedCodes.includes(decodedText)) {
+                    scannedCodes.push(decodedText);
+                    actualizarContador()
+                    //alert(`Código EAN escaneado: ${decodedText}`);
+                    
+                }
+            }
+    
+            function onScanFailure(error) {
+                console.warn(`Error de escaneo: ${error}`);
+            }
+    
+            function actualizarContador (){
+                contador++;
+                document.getElementById('contador').innerText = 'Escaneados: ' + contador;
+                pintarEans();
+            }
+
+            function botonStopStart (){
+                if (document.getElementById('botonSS').innerHTML == 'Stop Scan') {
+                    html5QrCode.stop();
+                    document.getElementById('botonSS').innerHTML = "Start Scan";}
+                else {
+                    html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: 250
+                },
+                onScanSuccess,
+                onScanFailure);
+                    document.getElementById('botonSS').innerHTML = "Stop Scan";
+                }
+            }
+
+            function downloadExcel() {
+                const csvContent = "data:text/csv;charset=utf-8," + scannedCodes.join("\n");
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "codigos_ean.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        </script>
+</body>
+</html>
