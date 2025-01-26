@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura Code 93 y Genera QR</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        video {
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid black;
+        }
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Captura CODE 93 y Genera un Código QR</h1>
+    <video id="video" autoplay></video>
+    <button id="capture">Capturar Código</button>
+    <canvas id="canvas"></canvas>
+    <h2>Código QR generado:</h2>
+    <div id="qrcode"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-qrcode/0.14.0/jquery.qrcode.min.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const qrcodeDiv = document.getElementById('qrcode');
+
+        // Acceder a la cámara
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(stream => {
+                video.srcObject = stream;
+                video.setAttribute("playsinline", true);
+                video.play();
+            });
+
+        document.getElementById('capture').addEventListener('click', () => {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+            if (code && code.format === "CODE_93") {
+                const value = code.data;
+                // Generar código QR
+                qrcodeDiv.innerHTML = ""; // Limpiar anterior
+                $(qrcodeDiv).qrcode(value);
+            } else {
+                alert("No se detectó un código CODE 93.");
+            }
+        });
+
+        // Ajustar el tamaño del canvas
+        video.addEventListener('loadedmetadata', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        });
+    </script>
+</body>
+</html>
