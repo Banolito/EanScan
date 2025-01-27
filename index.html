@@ -110,6 +110,7 @@
             }
 
             function generateQR() {
+                var value = null;
                  var value = scannedCodes[scannedCodes.length - 1];
                  if (value) {
                     var qrcode = new QRCode(document.getElementById('qrcode'), {
