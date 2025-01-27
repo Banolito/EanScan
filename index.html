@@ -4,30 +4,68 @@
     <meta charset="UTF-8" />
     <title>ESCANER EANs</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 </head>
     <body>
+        
         <h1>Escáner de Códigos EAN</h1>
-        <div id="qr-reader" style="width: 300px"></div>
+        <br>
+        <div id="lector" style="width: 300px"></div>
         <br>
         <button onclick="downloadExcel()">Descargar Excel</button>
         <br>
+        <button type="button" id ="botonSS" onclick="botonStopStart()">Stop Scan</button>
+        <br>
         <p id="contador">Escaneados: 0</p>
         <br>
-        <a href="/EanScan/test.html">Pagina de pruebas</a>
+        <p id="list">Test</p>
         <br>
-        <a href="/EanScan/Code93.html">Code93</a>
+        <div id="qr-code-result"></div>
+        <br>
+        <button type="button" onclick="generateQR()">Generar código QR</button>
+        <br>
+        <br>
+        <div id="qrcode"></div>
         <script>
+
+            function pintarEans(){
+                let contenidoArray = "";
+                scannedCodes.forEach(function(elemento){
+                    contenidoArray += "<p>" + elemento + "<p>";
+                });
+                document.getElementById("list").innerHTML = contenidoArray;
+            
+            }
+
             const scannedCodes = [];
             var contador = 0
-            function actualizarContador (){
-                contador++;
-                document.getElementById('contador').innerText = 'Escaneados: ' + contador;
-            }
+
+            const html5QrCode = new Html5Qrcode("lector", {formatsToSupport: [ 
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.UPC_A,
+                Html5QrcodeSupportedFormats.UPC_E,
+                Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION,
+                Html5QrcodeSupportedFormats.CODE_39,
+                Html5QrcodeSupportedFormats.CODE_39,
+                Html5QrcodeSupportedFormats.CODE_128,
+            ] });
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 60,
+                    qrbox: 250
+                },
+                onScanSuccess,
+                onScanFailure
+            );
 
             function onScanSuccess(decodedText, decodedResult) {
                 if (!scannedCodes.includes(decodedText)) {
                     scannedCodes.push(decodedText);
                     actualizarContador()
+                    generateQR()
                     //alert(`Código EAN escaneado: ${decodedText}`);
                     
                 }
@@ -37,17 +75,29 @@
                 console.warn(`Error de escaneo: ${error}`);
             }
     
-            const html5QrCode = new Html5Qrcode("qr-reader");
-            html5QrCode.start(
+            function actualizarContador (){
+                contador++;
+                document.getElementById('contador').innerText = 'Escaneados: ' + contador;
+                pintarEans();
+            }
+
+            function botonStopStart (){
+                if (document.getElementById('botonSS').innerHTML == 'Stop Scan') {
+                    html5QrCode.stop();
+                    document.getElementById('botonSS').innerHTML = "Start Scan";}
+                else {
+                    html5QrCode.start(
                 { facingMode: "environment" },
                 {
                     fps: 10,
                     qrbox: 250
                 },
                 onScanSuccess,
-                onScanFailure
-            );
-    
+                onScanFailure);
+                    document.getElementById('botonSS').innerHTML = "Stop Scan";
+                }
+            }
+
             function downloadExcel() {
                 const csvContent = "data:text/csv;charset=utf-8," + scannedCodes.join("\n");
                 const encodedUri = encodeURI(csvContent);
@@ -58,6 +108,19 @@
                 link.click();
                 document.body.removeChild(link);
             }
+
+            function generateQR() {
+                 var value = scannedCodes[scannedCodes.length - 1];
+                 if (value) {
+                    var qrcode = new QRCode(document.getElementById('qrcode'), {
+                    text: value,
+                    width: 128,
+                    height: 128
+                    });
+                } else {
+                    alert('Por favor, ingresa un valor.');
+                 }
+}
         </script>
 </body>
 </html>
