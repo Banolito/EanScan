@@ -105,7 +105,7 @@
             }
 
             function generateQR() {
-                document.getElementById('qrcode') = null;
+                document.getElementById('qrcode').innerHTML = '';
                  var value = scannedCodes[scannedCodes.length - 1];
                  if (value) {
                     var qrcode = new QRCode(document.getElementById('qrcode'), {
