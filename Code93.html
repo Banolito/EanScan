@@ -28,7 +28,12 @@
             }
         },
         decoder: {
-            readers: ['code_93_reader']
+            readers: ['code_93_reader',
+                     'ean_reader]
+        },
+        locator: {
+             halfSample: true,
+             patchSize: "x-large"
         },
     }
 
