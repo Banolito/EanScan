@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Código QR</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+</head>
+<body>
+    <input type="text" id="clipboardContent" placeholder="Contenido del portapapeles" readonly>
+    <button onclick="pasteFromClipboard()">Pegar desde el portapapeles</button>
+    <br></br>
+    <br></br>
+    <div id="qrcode"></div>
+    <script src="script.js"></script>
+    <script>
+
+        async function pasteFromClipboard() {
+    try {
+        const clipboardContent = await navigator.clipboard.readText();
+        document.getElementById('clipboardContent').value = clipboardContent;
+        generateQRCode(clipboardContent);
+    } catch (err) {
+        console.error('Error al leer el portapapeles: ', err);
+    }
+}
+
+function generateQRCode(content) {
+    document.getElementById('qrcode').innerHTML = ""
+    new QRCode(document.getElementById('qrcode'), {
+        text: content,
+        width: 128,
+        height: 128
+    });
+}
+
+    window.addEventListener('load', async function() {
+        await pasteFromClipboard();
+    });
+
+    </script>
+</body>
+</html>
