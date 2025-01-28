@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector de Códigos de Barras y Generador de QR</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+</head>
+<body>
+    <h1>Lector de Códigos de Barras y Generador de QR</h1>
+    <video id="camera" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <div id="qr-code"></div>
+
+    <script>
+        // Configuración de Quagga para la lectura de códigos de barras
+        Quagga.init({
+       inputStream: {
+           name: "Live",
+           type: "LiveStream",
+           target: document.querySelector('#camera'),
+           constraints: {
+               facingMode: "environment", // Usar la cámara trasera
+               focusMode: "continuous", // Enfoque continuo (si está disponible)
+           }
+       },
+       decoder: {
+           readers: ["code_93_reader"], // Especificar el lector de Code 93
+           debug: {
+               drawBoundingBox: true,
+               showFrequency: true,
+               drawScanline: true,
+               showPattern: true
+           }
+       },
+       locator: {
+           halfSample: true,
+           patchSize: "medium", // Tamaño del área de búsqueda
+           debug: {
+               showCanvas: true,
+               showPatches: true,
+               showFoundPatches: true,
+               showSkeleton: true
+           }
+       },
+       frequency: 10 // Frecuencia de escaneo (en Hz)
+   }, function(err) {
+       if (err) {
+           console.error(err);
+           return;
+       }
+       console.log("Quagga inicializado correctamente.");
+       Quagga.start();
+   });
+
+        Quagga.onDetected(function(result) {
+            const code = result.codeResult.code;
+            console.log("Código detectado:", code);
+
+            // Generar el código QR
+            const qrCodeElement = document.getElementById('qr-code');
+            QRCode.toCanvas(qrCodeElement, code, function (error) {
+                if (error) console.error(error);
+                console.log('Código QR generado!');
+            });
+
+            // Detener la cámara después de la detección
+            Quagga.stop();
+        });
+    </script>
+</body>
+</html>
