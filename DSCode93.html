@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lector de Códigos de Barras y Generador de QR</title>
+    <title>Conversor de Code93 a QR</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
@@ -27,26 +27,15 @@
            }
        },
        decoder: {
-           readers: ["code_93_reader", "code_39_reader", "code_128_reader"], // Especificar el lector de Code 93
-           debug: {
-               drawBoundingBox: true,
-               showFrequency: true,
-               drawScanline: true,
-               showPattern: true
-           }
+           readers: ["code_93_reader", "code_39_reader", "code_128_reader", "ean_reader"],  
        },
        locator: {
            halfSample: true,
-           patchSize: "medium", // Tamaño del área de búsqueda
-           debug: {
-               showCanvas: true,
-               showPatches: true,
-               showFoundPatches: true,
-               showSkeleton: true
-           }
+           patchSize: "large", // Tamaño del área de búsqueda
        },
        frequency: 10 // Frecuencia de escaneo (en Hz)
-   }, function(err) {
+   }, 
+   function(err) {
        if (err) {
            console.error(err);
            return;
@@ -60,12 +49,11 @@
             console.log("Código detectado:", code);
 
             // Generar el código QR
-            const qrCodeElement = document.getElementById('qr-code');
-            QRCode.toCanvas(qrCodeElement, code, function (error) {
-                if (error) console.error(error);
-                console.log('Código QR generado!');
-            });
-
+            var qrcode = new QRCode(document.getElementById('qr-code'), {
+                    text: code,
+                    width: 128,
+                    height: 128
+                    });
             // Detener la cámara después de la detección
             Quagga.stop();
         });
