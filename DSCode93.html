@@ -45,6 +45,7 @@
    });
 
         Quagga.onDetected(function(result) {
+            alert("Detected barcode: " + result.codeResult.code);
             const code = result.codeResult.code;
             console.log("Código detectado:", code);
 
